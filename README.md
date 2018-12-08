@@ -77,7 +77,7 @@ export default{
 * 安装koa2 koa-bodyparser koa-router koa2-cors  `npm install --save koa koa-bodyparser koa-router koa2-cors`
 
 -------
-* [x]koa-bodyparser  ：用于接收并解析前台发送过来的post数据
+* [x] koa-bodyparser  ：用于接收并解析前台发送过来的post数据
 * [x] koa-router ：路由，
 * [x] koa2-cors      ：用来解决前端的跨域
 
@@ -151,7 +151,7 @@ module.exports = router.routes();
 axios.defaults.baseURL = 'http://localhost:3000'; // 全局的地址，因为我的koa监听端口是3000， 这里可以按照大家自己的来配置
 ```
 
-### ok 我们开测试一下
+### ok 我们开始测试一下
 可以用postmain 也可以直接在浏览器中测试
 > postmain
 >>![postmain](media/15441771842993/postmain.png)
