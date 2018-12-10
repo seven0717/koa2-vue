@@ -77,10 +77,9 @@ export default{
 * 安装koa2 koa-bodyparser koa-router koa2-cors  `npm install --save koa koa-bodyparser koa-router koa2-cors`
 
 -------
-* [x] koa-bodyparser  ：用于接收并解析前台发送过来的post数据
-* [x] koa-router ：路由，
-* [x] koa2-cors      ：用来解决前端的跨域
-
+* [x] koa-bodyparser：用于接收并解析前台发送过来的post数据
+* [x] koa-router：路由
+* [x] koa2-cors：用来解决前端的跨域
 * 搭建koa 在浏览器运行localhost:3000 页面输出 hello 表示成功了 😄
 
     _下面的代码是验证koa是否搭建成功，可以跳过_
@@ -107,7 +106,7 @@ const router = require('koa-router')();
 const login = require('./router/login.js');     //这是登陆路由的文件
 const cors = require('koa2-cors');
 const app = new Koa();
-
+app.use(bodyparser())
 这是处理前端跨域的配置
 app.use(cors({
   origin: function (ctx) {
@@ -151,7 +150,7 @@ module.exports = router.routes();
 axios.defaults.baseURL = 'http://localhost:3000'; // 全局的地址，因为我的koa监听端口是3000， 这里可以按照大家自己的来配置
 ```
 
-### ok 我们开始测试一下
+### ok 我们开测试一下
 可以用postmain 也可以直接在浏览器中测试
 > postmain
 >>![postmain](media/15441771842993/postmain.png)
@@ -163,3 +162,283 @@ axios.defaults.baseURL = 'http://localhost:3000'; // 全局的地址，因为我
 -------
 能取到数据 那就说明没有问题
 接下来开始连接数据库 数据库用的是 ***mysql***
+## 创建数据库
+* 我在本地用的是mamp+navicat 大家可以用自己熟悉的 
+* 安装[mysql-pro](https://www.npmjs.com/package/mysql-pro) 一个连接数据库的中间件`npm install mysql-pro`
+* 接下来在创建表
+* 需要的字段
+
+    | id | user | pass |
+    | --- | --- | --- |
+
+    ![database](media/15441771842993/database.png)
+* 随便添加两个就可以了，这里没有做验证，需要的小伙伴可以自己添加这个功能
+* 到此就结束了，我们来验证一下
+* 在koa2/sql下新建一个js文件
+
+    ```
+    const Client = require('mysql-pro');
+    const db = new Client({
+      mysql:{
+        host:'localhost',
+        port:3306,
+        database:'vue-koa2',
+        user:'root',
+        password:'root'
+      }
+    })
+    
+    module.exports = db;
+    ```
+    
+* 接下来进入koa2/router下的login.js
+* 看一下我们在前端拿到的数据
+
+ ![bodyparse](media/15441771842993/bodyparser.png)
+ 因为我们用了中间件[koa-bodyparser](https://www.npmjs.com/package/koa-bodyparser) ,在koa2/router/login.js中这样写
+ 
+     ```
+     const router = require('koa-router')();
+    const db = require('../sql/sql');
+    
+    router
+      .post('/', async ctx => {
+        let user = ctx.request.body   //接收前端传过来的post数据
+        console.log(user);
+        ctx.body = {
+          user:'111',
+          code:1,
+          status:200
+        };
+      });
+    
+    module.exports = router.routes();
+     ```
+     控制台输出 { user: '123', pass: '123' }
+     
+接下来连接数据数据库,查询
+
+```
+const router = require('koa-router')();
+const db = require('../sql/sql');
+
+router
+  .post('/', async ctx => {
+    let user = ctx.request.body.user;
+    let pass = ctx.request.body.pass;
+    // 将接收到的前台数据和数据库中的数据匹配
+    // 如果匹配成功 返回status 200 code 1
+    // 不成功返回status 1000 code 0
+    db.query('select * from login where user=? and pass=?;',[user,pass]).then(res => {
+      console.log(res);
+    })
+    ctx.body = {
+      user:'111',
+      code:1,
+      status:200
+    };
+  });
+
+module.exports = router.routes();
+```
+控制台输出`[ RowDataPacket { id: 1, user: '111', pass: '111' } ]`
+表示拿到数据
+**注意**
+    这是个数组的格式，如果将user返回给前端`res[0].user`,
+    
+```
+const router = require('koa-router')();
+const db = require('../sql/sql');
+
+router
+  .post('/', async ctx => {
+    let user = ctx.request.body.user;
+    let pass = ctx.request.body.pass;
+    // 将接收到的前台数据和数据库中的数据匹配
+    // 如果匹配成功 返回status 200 code 1
+    // 不成功返回status 1000 code 0
+    await db.query('select * from login where user=? and pass=?;', [user, pass]).then(res => {
+      if (res.length === 0) {   // 数据库中没有匹配到用户
+        ctx.body = {
+          code: 0,
+          status: 1000,
+          msg: 'error'
+        }
+      } else {  //匹配到用户
+        ctx.body = {
+          user: res[0].user,
+          code: 1,
+          status: 200
+        }
+      }
+    })
+
+  });
+
+module.exports = router.routes();
+```
+
+-------
+以上就是简单的前后数据交互
+接下来讲解的是vuex权限验证和token
+
+-------
+# token
+* 创建token我们要用到
+* [x] [验证token的网站](https://jwt.io/)
+* [x] [创建token中间件](https://www.npmjs.com/package/jsonwebtoken)
+    
+* 在koa2中新建文件夹token
+* token下新建一个addtoken.js用于创建token再新建一个proving.js用于验证token
+
+> addtoken
+```
+const jwt = require('jsonwebtoken');
+const serect = 'token';  //密钥，不能丢
+module.exports = (userinfo) => { //创建token并导出
+  const token = jwt.sign({
+    user: userinfo.user,
+    id: userinfo.id
+  }, serect, {expiresIn: '1h'});
+  return token;
+};
+```
+在router/login中引入
+
+    const router = require('koa-router')();
+        const db = require('../sql/sql');
+        const addtoken = require('../token/addtoken');
+        
+        router
+          .post('/', async ctx => {
+            let user = ctx.request.body.user;
+            let pass = ctx.request.body.pass;
+            // 将接收到的前台数据和数据库中的数据匹配
+            // 如果匹配成功 返回status 200 code 1
+            // 不成功返回status 1000 code 0
+            await db.query('select * from login where user=? and pass=?;', [user, pass]).then(res => {
+              if (res.length === 0) {   // 数据库中没有匹配到用户
+                ctx.body = {
+                  code: 0,
+                  status: 1000,
+                  msg: 'error'
+                }
+              } else {  //匹配到用户
+                let tk = addtoken({user:res[0].user,id:res[0].id})  //token中要携带的信息，自己定义
+                ctx.body = {
+                  tk,  //返回给前端
+                  user: res[0].user,
+                  code: 1,
+                  status: 200
+                }
+              }
+            })
+        
+          });
+        module.exports = router.routes();
+
+# [vuex](https://vuex.vuejs.org/zh/)
+拿到了后台的token，我们要做什么呢？
+1. 存到localStorage中
+    * 在src/components/login.vue中将token和user存进localStorage中
+2. 存到vuex中
+    * npm install --save vuex
+
+这看自己的需求了
+回到前端 我们改一下路由
+> 没改之前
+
+    import Vue from 'vue'
+    import Router from 'vue-router'
+    
+    Vue.use(Router)
+    
+    export default new Router({
+      routes: [
+        {
+          path: '/',
+          name: 'login',
+          component: resolve => require(['@/components/login'],resolve)
+        },
+        {
+          path: '/homes',
+          name: 'homes',
+          component: resolve => require(['@/components/homes'],resolve)
+        }
+      ]
+    })
+>改过之后
+
+    import Vue from 'vue'
+    import Router from 'vue-router'
+    
+    Vue.use(Router);
+    
+    const router = new Router({
+      routes: [
+        {
+          path: '/',
+          name: 'login',
+          component: resolve => require(['@/components/login'], resolve)
+        },
+        {
+          path: '/homes',
+          name: 'homes',
+          meta: {
+            auth: true
+          },
+          component: resolve => require(['@/components/homes'], resolve)
+        }
+      ]
+    });
+    
+    router.beforeEach((to, from, next) => {
+      if (to.meta.auth) { //权限判断
+        if ('进行判断') { //读取token值
+        //  成功
+          next()
+        } else {
+          next({path:'/'})
+        }
+      } else {
+        // 没有meta.auth 不用管
+        next()
+      }
+    });
+    
+    export default router;
+    
+在路由中要验证的地方添加meta：{auth：true}
+
+接下来就是创建vuex
+1. 在src下新建文件夹vuex
+2. 全局引入vuex
+3. 在vuex中新建store.js文件
+
+        import Vue from 'vue';
+        import Vuex from 'vuex'
+        Vue.use(Vuex);
+        
+        const store = new Vuex.Store({
+          state:{
+            user:localStorage.getItem('user') || '',
+            token:localStorage.getItem('token') || null
+          }
+        });
+        export default store;
+
+1. 接下来改一下路由中的权限判断 
+
+        router.beforeEach((to, from, next) => {
+          if (to.meta.auth) { //权限判断
+            if (localStorage.getItem('token')) { //读取token值
+            //  成功
+              next()
+            } else {
+              next({path:'/'})
+            }
+          } else {
+            // 没有meta.auth 不用管
+            next()
+          }
+        });
