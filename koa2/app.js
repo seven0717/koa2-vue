@@ -5,7 +5,7 @@ const login = require('./router/login.js');
 const cors = require('koa2-cors');
 const app = new Koa();
 
-
+app.use(bodyparser());
 
 app.use(cors({
   origin: function (ctx) {
