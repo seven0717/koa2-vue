@@ -442,3 +442,63 @@ module.exports = (userinfo) => { //创建token并导出
             next()
           }
         });
+在login.vue中接收到数据后添加
+
+        localStorage.setItem('token', data.data.tk) //存储token
+        localStorage.setItem('user', data.data.user) //存储用户
+        this.LOGIN({
+          token:data.data.tk,
+          user:data.data.user
+        });
+        
+5. 这样就将token拿到了并存进localStorage中，接下来就是将token在发送的时候 添加进头部中 发送给后台
+6. 在axios/axios.js中
+
+         axios.defaults.headers.common['Authorization'] = 'Bearer '+ localStorage.getItem('token');
+         
+7. 在登陆的时候这样就会将token发送给后台了
+8. 后台验证前台发送的token 
+
+        const jwt = require('jsonwebtoken');
+        const serect = 'token';  //密钥，不能丢
+        module.exports =(tokens) => {
+        
+          if (tokens){
+            let toke = tokens.split(' ')[1];
+            // 解析
+            let decoded = jwt.decode(toke, serect);
+            return decoded;
+          }
+        };
+
+9. 在login.js中，添加
+
+           router.get('/test',async (ctx,next) => {
+        let token = ctx.request.header.authorization;
+        if (token){
+        //  获取到token
+          let res = proving(token);
+            if (res && res.exp <= new Date()/1000){
+              ctx.body = {
+                message: 'token过期',
+                code:3
+              };
+            } else {
+              ctx.body = {
+                message: '解析成功',
+                code:1
+              }
+            }
+        } else{  // 没有取到token
+          ctx.body = {
+            msg:'没有token',
+            code:0
+          }
+        }
+        });
+        
+-------
+项目至此算是告一段落，大家可以把我的项目clone到本地下运行
+[项目地址](https://github.com/seven0717/koa2-vue)
+
+## 项目中也许有很多写的不对的地方，或者不规范什么的 大家就引以为戒，

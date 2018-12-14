@@ -4,11 +4,11 @@ const router = require('koa-router')();
 const login = require('./router/login.js');
 const cors = require('koa2-cors');
 const app = new Koa();
-
+require('./token/proving');
 app.use(bodyparser());
 
 app.use(cors({
-  origin: function (ctx) {
+  origin: function(ctx) {
     if (ctx.url === '/login') {
       return "*"; // 允许来自所有域名请求
     }
@@ -21,7 +21,8 @@ app.use(cors({
   allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
 }));
 
-router.use('/login',login);
+
+router.use('/login', login);
 app
   .use(router.routes())
   .use(router.allowedMethods());

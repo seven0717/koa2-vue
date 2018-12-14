@@ -64,20 +64,21 @@
             // 1.向后台传输数据，并接收返回值
             api.denglu(this.forms, {timeout: 5000}).then(data => {
               // 从后台成功取到数据
-              console.log(data);
               if (data.data.status === 200) { //成功取到数据
                 this.loginLoadingState = false;
                 this.logins = '登陆';
-                localStorage.setItem('token', data.data.tk) //存储token
+                localStorage.setItem('token', data.data.token) //存储token
                 localStorage.setItem('user', data.data.user) //存储用户
                 this.LOGIN({
-                  token:data.data.tk,
+                  token:data.data.token,
                   user:data.data.user
                 });
                 this.$router.push('/homes');
               } else {
                 if (data.data.status === 1000) { // 没有取到数据
                   this.$router.push('/login');
+                  this.loginLoadingState = false;
+                  this.logins = '登陆';
                 }
               }
 

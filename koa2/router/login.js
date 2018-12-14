@@ -1,9 +1,9 @@
 const router = require('koa-router')();
 const db = require('../sql/sql');
 const addtoken = require('../token/addtoken');
+const proving = require('../token/proving');
 
-router
-  .post('/', async ctx => {
+router.post('/', async ctx => {
     let user = ctx.request.body.user;
     let pass = ctx.request.body.pass;
     // 将接收到的前台数据和数据库中的数据匹配
@@ -17,16 +17,38 @@ router
           msg: 'error'
         }
       } else {  //匹配到用户
-        let tk = addtoken({user:res[0].user,id:res[0].id})
+        let token = addtoken(res[0]);
         ctx.body = {
-          tk,
           user: res[0].user,
+          token,
           code: 1,
           status: 200
         }
       }
     })
+});
 
-  });
-
+router.get('/test',async (ctx,next) => {
+    let token = ctx.request.header.authorization;
+    if (token){
+    //  获取到token
+      let res = proving(token);
+        if (res && res.exp <= new Date()/1000){
+          ctx.body = {
+            message: 'token过期',
+            code:3
+          };
+        } else {
+          ctx.body = {
+            message: '解析成功',
+            code:1
+          }
+        }
+    } else{  // 没有token
+      ctx.body = {
+        msg:'没有token',
+        code:0
+      }
+    }
+});
 module.exports = router.routes();

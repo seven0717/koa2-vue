@@ -11,7 +11,6 @@ Vue.use(ElementUI);
 Vue.use(Vuex);
 Vue.config.productionTip = false
 import './axios/axios'
-
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

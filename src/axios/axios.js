@@ -2,7 +2,7 @@ import axios from 'axios' // axios引用
 import qs from 'qs';
 
 axios.defaults.baseURL = 'http://localhost:3000'; // 全局的地址
-// axios.defaults.headers.common['Authorization'] = AUTH_TOKEN;
+axios.defaults.headers.common['Authorization'] = 'Bearer '+ localStorage.getItem('token');
 axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
 // 添加请求拦截器
 axios.interceptors.request.use(function (config) {
