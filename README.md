@@ -501,4 +501,7 @@ module.exports = (userinfo) => { //创建token并导出
 项目至此算是告一段落，大家可以把我的项目clone到本地下运行
 [项目地址](https://github.com/seven0717/koa2-vue)
 
+* 运行方式
+  * 运行vue npm start
+  * 在koa2下运行app.js node app.js
 ## 项目中也许有很多写的不对的地方，或者不规范什么的 大家就引以为戒，
