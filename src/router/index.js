@@ -16,6 +16,18 @@ const router = new Router({
       meta: {
         auth: true
       },
+      children:[
+        {
+          path:'/',
+          name:'one',
+          component:resolve => require(['@/components/one'],resolve)
+        },
+        {
+          path:'two',
+          name:'two',
+          component:resolve => require(['@/components/two'],resolve)
+        }
+      ],
       component: resolve => require(['@/components/homes'], resolve)
     }
   ]

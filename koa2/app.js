@@ -2,6 +2,7 @@ const Koa = require('koa');
 const bodyparser = require('koa-bodyparser');
 const router = require('koa-router')();
 const login = require('./router/login.js');
+const lists = require('./router/lists');
 const cors = require('koa2-cors');
 const app = new Koa();
 require('./token/proving');
@@ -23,6 +24,7 @@ app.use(cors({
 
 
 router.use('/login', login);
+router.use('/lists',lists);
 app
   .use(router.routes())
   .use(router.allowedMethods());
