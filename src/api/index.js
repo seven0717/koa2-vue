@@ -1,3 +1,4 @@
+import Vue from 'vue'
 import axios from 'axios';
 export default{
   // 登陆
@@ -8,7 +9,20 @@ export default{
   homes:() => {
     return axios.get('/login/test');
   },
+  // 列表
   lists:() => {
-    return axios.get('/lists')
+    return axios.get('/lists');
+  },
+  // 添加用户
+  adduser:(data) => {
+    return axios.post('/adduser',data)
+  },
+  // 获取新闻
+  news:() => {
+    return axios.get('/news');
+  },
+//  图形化数据
+  hchar:() => {
+    return axios.get('/hchar');
   }
 }

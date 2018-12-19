@@ -3,6 +3,9 @@ const bodyparser = require('koa-bodyparser');
 const router = require('koa-router')();
 const login = require('./router/login.js');
 const lists = require('./router/lists');
+const adds = require('./router/adduser');
+const news = require('./router/news');
+const hchar = require('./router/hchar');
 const cors = require('koa2-cors');
 const app = new Koa();
 require('./token/proving');
@@ -22,9 +25,16 @@ app.use(cors({
   allowHeaders: ['Content-Type', 'Authorization', 'Accept'],
 }));
 
-
+// 登陆
 router.use('/login', login);
+// 列表
 router.use('/lists',lists);
+// 添加
+router.use('/adduser',adds);
+// 新闻
+router.use('/news',news);
+// 图形化
+router.use('/hchar',hchar);
 app
   .use(router.routes())
   .use(router.allowedMethods());

@@ -51,7 +51,6 @@
 </template>
 
 <script>
-  import api from '@/api/index.js';
   import date from '@/utils/date.js'
 
   export default {
@@ -76,7 +75,7 @@
       },
     },
     mounted() {
-      api.lists().then(data => {
+      this.api.lists().then(data => {
         //  获取后台数据
         let ss = data.data.res;
         // 时间格式转换

@@ -4,7 +4,7 @@
       <el-header style="text-align: right; font-size: 12px">
         <el-menu
           router
-          default-active="/homes"
+          :default-active="$route.path"
           class="el-menu-demo"
           mode="horizontal"
           background-color="#545c64"
@@ -26,7 +26,7 @@
         </el-menu>
       </el-header>
       <el-main>
-        <router-view></router-view>
+          <router-view></router-view>
       </el-main>
       <el-footer>Footer</el-footer>
     </el-container>
@@ -40,7 +40,8 @@
     name: 'Homes',
     data() {
       return {
-        user: ''
+        user: '',
+        uri:'/homes'
       }
     },
     mounted() {
@@ -49,7 +50,7 @@
         this.user = localStorage.getItem('user')
       }).catch(err => {
         console.log(`错误 - ${err}`)
-      });
+      })
     },
   }
 </script>

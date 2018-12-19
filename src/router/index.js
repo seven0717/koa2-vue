@@ -20,12 +20,12 @@ const router = new Router({
         {
           path:'/',
           name:'one',
-          component:resolve => require(['@/components/one'],resolve)
+          component:resolve => require(['@/page/one'],resolve)
         },
         {
           path:'two',
           name:'two',
-          component:resolve => require(['@/components/two'],resolve)
+          component:resolve => require(['@/page/two'],resolve)
         }
       ],
       component: resolve => require(['@/components/homes'], resolve)
