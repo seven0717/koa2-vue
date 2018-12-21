@@ -83,6 +83,7 @@
                   message: res.data.msg,
                   type: 'success'
                 });
+                this.$refs[formName].resetFields();
               }
             })
           } else {
