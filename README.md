@@ -505,3 +505,4 @@ module.exports = (userinfo) => { //创建token并导出
   * 运行vue npm start
   * 在koa2下运行app.js node app.js
 ## 项目中也许有很多写的不对的地方，或者不规范什么的 大家就引以为戒，
+#### 项目有时间会更新，都是些小东西，大家可以看一下，大牛绕路哦 😄
