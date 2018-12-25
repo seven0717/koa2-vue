@@ -13,22 +13,34 @@ const router = new Router({
     {
       path: '/homes',
       name: 'homes',
-      meta: {
-        auth: true
-      },
+      component: resolve => require(['@/components/homes'], resolve),
+      meta: {auth: true},
       children:[
         {
           path:'/',
           name:'one',
+          meta: {auth: true},
           component:resolve => require(['@/page/one'],resolve)
         },
         {
           path:'two',
           name:'two',
+          meta: {auth: true},
           component:resolve => require(['@/page/two'],resolve)
+        },
+        {
+          path:'three',
+          name:'three',
+          meta: {auth: true},
+          component:resolve => require(['@/page/three'],resolve)
+        },
+        {
+          path:'admin',
+          name:'admin',
+          meta: {auth: true},
+          component:resolve => require(['@/page/admin'],resolve)
         }
-      ],
-      component: resolve => require(['@/components/homes'], resolve)
+      ]
     }
   ]
 });

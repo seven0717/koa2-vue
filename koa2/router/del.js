@@ -2,7 +2,7 @@ const router = require('koa-router')();
 const db = require('../sql/sql');
 
 router.del('/',async ctx=> {
-  let de = await ctx.request.body.id;
+  let de = await ctx.request.body;
   await db.query('delete from lists where id=?',[de]).then(res => {
     ctx.body = {
       msg:'删除成功',

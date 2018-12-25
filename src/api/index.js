@@ -33,5 +33,9 @@ export default {
   // 删除用户
   dalete:(data) => {
     return axios.delete('/delete',{data})
+  },
+//  批量删除用户
+  removeall:(data) => {
+    return axios.post('/rmall',data)
   }
 }

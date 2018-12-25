@@ -76,7 +76,7 @@
                 this.$router.push('/homes');
               } else {
                 if (data.data.status === 1000) { // 没有取到数据
-                  this.$router.push('/login');
+                  this.$router.push('/');
                   this.loginLoadingState = false;
                   this.logins = '登陆';
                 }

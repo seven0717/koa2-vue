@@ -8,6 +8,7 @@ const news = require('./router/news');
 const hchar = require('./router/hchar');
 const edit = require('./router/edit');
 const del = require('./router/del');
+const rmall = require('./router/rmall');
 const cors = require('koa2-cors');
 const app = new Koa();
 require('./token/proving');
@@ -41,6 +42,8 @@ router.use('/hchar', hchar);
 router.use('/edit', edit);
 // 删除用户
 router.use('/delete',del);
+// 批量删除用户
+router.use('/rmall',rmall);
 app
 	.use(router.routes())
 	.use(router.allowedMethods());

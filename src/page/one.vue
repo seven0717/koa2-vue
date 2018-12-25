@@ -1,7 +1,8 @@
 <template>
   <div>
-    <el-table :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+    <el-table :data="tableData.slice((currentPage-1)*pagesize,currentPage*pagesize)"
               style="width: 100%;"
+              ref="multipleTable"
               @selection-change="xuanzhong" tooltip-effect="dark">
       <el-table-column type="selection" width="55px">
       </el-table-column>
@@ -15,7 +16,7 @@
       </el-table-column>
       <el-table-column align="right">
         <template slot="header" slot-scope="scope">
-          <el-input v-model="search" size="mini" placeholder="输入关键字搜索"/>
+          <el-input v-model="search" @keyup.enter.native="sousuo" size="mini" placeholder="输入关键字搜索"/>
         </template>
 
         <template slot-scope="scope">
@@ -28,6 +29,26 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-row>
+      <el-col :span="12">
+        <div style="margin-top: 20px;text-align: left">
+          <el-button @click="toggleSelection" type="danger">批量删除</el-button>
+        </div>
+      </el-col>
+      <el-col :span="12">
+        <el-pagination
+          style="margin-top: 20px;text-align: right"
+          background
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-size="pagesize"
+          layout="prev, pager, next"
+          :total=zong>
+        </el-pagination>
+      </el-col>
+    </el-row>
+
+
     <el-dialog title="编辑信息" :visible.sync="dialogVisible" width="40%">
       <el-form :model="me" status-icon :rules="rules" ref="me" label-width="70px">
         <el-form-item label="姓名" prop="name">
@@ -80,6 +101,10 @@
         }
       };
       return {
+        sel: [],
+        currentPage: 1, //初始页
+        pagesize: 10,    //    每页的数据
+        zong: 1,
         loginLoadingState: false,
         yes: '确 定',
         tableData: [],
@@ -91,6 +116,7 @@
           address: '',
           tel: ''
         },
+        ids: [],
         rules: {
           name: [{
             validator: names,
@@ -111,6 +137,43 @@
       }
     },
     methods: {
+      toggleSelection() {
+        this.sel.forEach(item => {
+          this.ids.push(item.id);
+        });
+        this.$confirm("确认删除选中记录吗？", "提示", {
+          type: 'warning'
+        }).then(() => {
+          this.api.removeall(this.ids).then(res => {
+            if (res.data.code === '111') {
+              this.$message({
+                message:'删除成功',
+                type:'success'
+              });
+              this.reload();
+            }
+          })
+        })
+      },
+      // 搜索
+      sousuo() {
+        if (this.search) {
+          let sh = this.tableData.filter(data => !this.search || data.name.toLowerCase().includes(this.search.toLowerCase()));
+          this.tableData = sh;
+          this.zong = sh.length;
+        } else if (this.search === '') {
+          this.reload();
+          this.$message({
+            message: '搜索条件不能为空',
+            type: 'warning'
+          })
+        }
+
+      },
+      // 分页
+      handleCurrentChange: function (currentPage) {
+        this.currentPage = currentPage;
+      },
       // 编辑
       handleEdit(index, row) {
         this.dialogVisible = true;
@@ -149,29 +212,30 @@
       handleDelete(index, row) {
         // console.log(index, row);
         this.api.dalete(row).then(data => {
-          if (data.data.code === '111'){
+          if (data.data.code === '111') {
             this.$message({
-              message:data.data.msg,
+              message: data.data.msg,
               type: 'success'
             })
             this.reload();
           } else {
             this.$message({
-              message:'删除失败',
-              type:'error'
+              message: '删除失败',
+              type: 'error'
             })
           }
         })
       },
       // 选中
       xuanzhong(row) {
-        // console.log(row);
+        this.sel = row;
       },
     },
     mounted() {
       this.api.lists().then(data => {
         //  获取后台数据
         let ss = data.data.res;
+        this.zong = ss.length;
         // 时间格式转换
         for (let i = 0; i < ss.length; i++) {
           ss[i].date = date(ss[i].date, 'yyyy-MM-dd HH:mm:ss')

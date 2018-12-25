@@ -14,19 +14,18 @@
           <el-menu-item index="/homes/two">增加用户</el-menu-item>
           <el-menu-item index="/homes/three">消息中心</el-menu-item>
           <el-menu-item index="/homes/four">订单管理</el-menu-item>
-          <el-dropdown trigger="click">
-            <i class="el-icon-setting" style="margin-right: 15px"></i>
+          <el-dropdown trigger="click" @command="handleCommand">
+            <span class="n-m">{{ user }}</span>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>查看</el-dropdown-item>
-              <el-dropdown-item>新增</el-dropdown-item>
-              <el-dropdown-item>删除</el-dropdown-item>
+              <el-dropdown-item command="a"> <router-link tag="li" :to="{name:'admin'}">查看</router-link></el-dropdown-item>
+              <el-dropdown-item command="b">新增</el-dropdown-item>
+              <el-dropdown-item command="c">退出</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-          <span class="n-m">{{ user }}</span>
         </el-menu>
       </el-header>
       <el-main>
-          <router-view></router-view>
+        <router-view></router-view>
       </el-main>
       <el-footer>Footer</el-footer>
     </el-container>
@@ -41,7 +40,27 @@
     data() {
       return {
         user: '',
-        uri:'/homes'
+        uri: '/homes'
+      }
+    },
+    methods: {
+      // 用户操作
+      handleCommand(m) {
+        switch (m) {
+          case 'a':
+            console.log('a');
+            break;
+          case 'b':
+            console.log('b');
+            break;
+          case 'c':
+            this.$confirm('确认退出吗','提示',{}).then(() => {
+              localStorage.removeItem('user');
+              localStorage.removeItem('token');
+              this.$router.push('/');
+            })
+            break;
+        }
       }
     },
     mounted() {
